@@ -51,7 +51,6 @@ func NewTokenMiddleware(secretKey string, identityKey string, allowKeyString str
 			return loginVal, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			//todo token auth
 			if v, ok := data.(*User); ok && v.ServiceName == "odm" {
 				return true
 			}
