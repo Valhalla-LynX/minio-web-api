@@ -1,21 +1,21 @@
 # MINIO-Cache-Web-Server
 
-[DOC](README.md) | [文档](README_zh.md) 
+[DOC](README.md) | [文档](README_zh.md)
 
-Based on minio and go-gin, adding the cache and jwt for the web server, now we get a useful resource server.
+基于minio和go-gin，并加入缓存和jwt的web服务器，提供可靠的资源服务。
 
-## How to use
+## 快速使用
 
-Before we get a file, we need to sign a new token.
+在使用前，需要根据用户获取一个token
 ```
 GET /login 
 
 Header:Content-Type=application/json // data format
 Data:
 {
-    "UserName":"odm", // for the user which is allowed to access
-    "UserKey":"odmKey", // an authorization key
-    "ServiceName":"test" // for what service in need
+    "UserName":"test", // 用户名
+    "UserKey":"testKey", // 用户key
+    "ServiceName":"test" // 用于服务名
 }
 
 Response:
@@ -24,9 +24,9 @@ Response:
     "message": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyIiOiJvZG0iLCJleHAiOjE2NDAzMzg4NTgsIm9yaWdfaWF0IjoxNjQwMzM1MjU4fQ.AFvLERGMAkI5ht5PX9EwznrEBDZtB2WDi-nuGAvX8yE"
 }
 ```
-Now we get a token to use other methods.  
-**Note: in Header Authorization, token need add 'Bearer ' at the first**  
-Get file by the method `getObject`.  
+token加入鉴权方法的header即可。  
+**注意，token前要加'Bearer '**  
+获取文件`getObject`.
 ```
 GET /auth/getObject?bucket={bucketName}&name={fileName}
 
@@ -34,7 +34,7 @@ Header:Authorization=Bearer eyJhbGciOiJIUzI...
 
 Response::FileStream
 ```
-Upload file by the method `uploadObject`.
+上传文件`uploadObject`.
 ```
 POST /auth/postObject?bucket={bucketName}
 
