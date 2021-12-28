@@ -25,8 +25,9 @@ var mioClient *minio.Client
 var mioCacheKey ttlcache.SimpleCache
 
 func main() {
+	// init cfg
 	wd, _ := os.Getwd()
-	cfg, err := ini.Load(wd + "/config.ini")
+	cfg, err := ini.Load(wd + "/config/config.ini")
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -43,22 +44,30 @@ func main() {
 
 	port := cfg.Section("gin").Key("port").String()
 
-	secretKey := cfg.Section("tokenMiddleware").Key("secretKey").String()
-	identityKey := cfg.Section("tokenMiddleware").Key("identityKey").String()
-	allowKey := cfg.Section("key").Key("name").String()
-
+	// init minio
 	mioClient = mio.InitMinioClient(endpoint, accessKeyID, secretAccessKey, useSSL)
 	mioCacheKey = ttlcache.NewCache()
-	mioCacheKey.SetTTL(24 * 60 * time.Minute)
+	err = mioCacheKey.SetTTL(24 * 60 * time.Minute)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
-	tokenMiddleware := token.NewTokenMiddleware(secretKey, identityKey, allowKey)
+	// init middleware
+	tokenMiddleware, err := token.NewTokenMiddleware()
+	if err != nil {
+		log.Println(err)
+	}
+
 	cacheMiddleware30m := cache.NewTokenMiddleware(30 * time.Minute)
 	//cacheMiddleware10m := cache.NewTokenMiddleware(10 * time.Minute)
 	//cacheMiddleware3m := cache.NewTokenMiddleware(3 * time.Minute)
 	cacheMiddleware1m := cache.NewTokenMiddleware(1 * time.Minute)
 
+	// init gin
 	r := gin.Default()
 
+	// load middleware
 	errInit := tokenMiddleware.MiddlewareInit()
 	if errInit != nil {
 		log.Fatal("Init tokenMiddleware middleware failed:" + errInit.Error())
@@ -70,16 +79,26 @@ func main() {
 		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 	})
 
+	// init router
 	r.POST("/login", tokenMiddleware.LoginHandler)
-	auth := r.Group("/auth")
-	auth.GET("/refresh_token", tokenMiddleware.RefreshHandler)
-	auth.Use(tokenMiddleware.MiddlewareFunc())
+
+	authCache := r.Group("/auth/quick")
+	authCache.Use(tokenMiddleware.MiddlewareFunc())
 	{
-		auth.GET("/getBucketList", cacheMiddleware30m, getBucketList)
-		auth.GET("/getObject", cacheMiddleware1m, getObject)
-		auth.POST("/postObject", postObject)
+		authCache.GET("/getBucketList", cacheMiddleware30m, getBucketList)
+		authCache.GET("/getObject", cacheMiddleware1m, getObject)
 	}
 
+	auth := r.Group("/auth")
+	auth.Use(tokenMiddleware.MiddlewareFunc())
+	auth.GET("/refresh_token", tokenMiddleware.RefreshHandler)
+	{
+		auth.GET("/getObject", getObject)
+		auth.POST("/puttObject", postObject)
+		// todo auth.DELETE("/puttObject", postObject)
+	}
+
+	// start app
 	err = r.Run(port)
 	if err != nil {
 		log.Fatal(err)

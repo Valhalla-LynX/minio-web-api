@@ -6,7 +6,7 @@
 
 ## 快速使用
 
-在使用前，需要根据用户获取一个token
+*在使用前，需要根据用户获取一个token*
 ```
 GET /login 
 
@@ -24,9 +24,9 @@ Response:
     "message": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyIiOiJvZG0iLCJleHAiOjE2NDAzMzg4NTgsIm9yaWdfaWF0IjoxNjQwMzM1MjU4fQ.AFvLERGMAkI5ht5PX9EwznrEBDZtB2WDi-nuGAvX8yE"
 }
 ```
-token加入鉴权方法的header即可。  
+*token加入鉴权方法的header即可。*  
 **注意，token前要加'Bearer '**  
-获取文件`getObject`.
+*获取文件`getObject`.*
 ```
 GET /auth/getObject?bucket={bucketName}&name={fileName}
 
@@ -34,9 +34,9 @@ Header:Authorization=Bearer eyJhbGciOiJIUzI...
 
 Response::FileStream
 ```
-上传文件`uploadObject`.
+*上传文件`uploadObject`.*
 ```
-POST /auth/postObject?bucket={bucketName}
+POST /auth/putObject?bucket={bucketName}
 
 Header:Authorization=Bearer eyJhbGciOiJIUzI...
        Content-Type=multipart/form-data
@@ -47,10 +47,19 @@ Response:
     "message": {fileSize}
 }
 ```
+*除此之外，使用`/quick`来通过缓存访问该方法.*
+* /auth/quick/getObject
 ## Configuration
-
+[minio]  
+[gin]  
+[token]  
+[key]  
+`user group`
 ## API
 
-### /login
-### /auth/getObject
-### /auth/postObject
+### POST   /login
+### GET    /auth/quick/getBucketList
+### GET    /auth/quick/getObject
+### GET    /auth/refresh_token
+### GET    /auth/getObject
+### POST   /auth/puttObject
