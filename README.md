@@ -2,6 +2,7 @@
 
 [DOC](README.md) | [文档](README_zh.md) 
 
+A minio web application.  
 Based on minio and go-gin, adding the cache and jwt for the web server, now we get a useful resource server.
 
 ## How to use

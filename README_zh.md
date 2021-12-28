@@ -2,7 +2,8 @@
 
 [DOC](README.md) | [文档](README_zh.md)
 
-基于minio和go-gin，并加入缓存和jwt的web服务器，提供可靠的资源服务。
+一个minio的web服务。  
+通过minio和go-gin，加入cache和jwt的web服务器，提供web化资源服务。
 
 ## 快速使用
 
