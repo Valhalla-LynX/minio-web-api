@@ -118,8 +118,6 @@ func NewTokenMiddleware() (*jwt.GinJWTMiddleware, error) {
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			url := strings.Split(c.Request.URL.Path, "/")
-			log.Println(permissionURLs)
-			log.Println(url[len(url)-1])
 			if permission, permissionOk := permissionURLs[url[len(url)-1]]; permissionOk {
 				if v, ok := data.(*User); ok {
 					if user, have := allowUser[v.UserName]; have {
